@@ -5,7 +5,7 @@ Designed for fast onboarding, shared code, and consistent development across the
 
 ---
 
-## 📁 Repo Structure
+##  Repo Structure
 
 ```
 apps/        # Applications
@@ -84,3 +84,26 @@ pnpm dev     # Run all apps
 pnpm build   # Build all apps
 pnpm lint    # Lint everything
 ```
+## 
+''' updat ci
+pnpm ci
+pnpm turbo build
+'''
+
+
+## Initialize backend project (Node.js + TypeScript + Express)
+## 1 add nod.js
+cd RelayBus/apps
+mkdir backend
+cd backend
+pnpm init -y
+
+## 2 add exprees
+pnpm add express dotenv
+pnpm add -D typescript ts-node nodemon @types/node @types/express
+## 3 add tcpescript
+npx tsc --init
+
+
+# run server 
+
