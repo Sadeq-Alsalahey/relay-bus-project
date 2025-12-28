@@ -1,0 +1,86 @@
+# Relay Bus
+
+Monorepo for the Relay Bus project, managed with **Turborepo** and **pnpm**.
+Designed for fast onboarding, shared code, and consistent development across the team.
+
+---
+
+## 📁 Repo Structure
+
+```
+apps/        # Applications
+packages/    # Shared code & configs
+```
+
+**Apps**
+
+* `apps/web` → Main Next.js app
+* `apps/docs` → Documentation site
+
+**Packages**
+
+* `packages/ui` → Shared UI components
+* `packages/eslint-config` → ESLint rules
+* `packages/typescript-config` → TypeScript config
+
+---
+
+##  Requirements
+
+* Node.js **11.6.2**
+* pnpm **10.26.2**
+
+Install pnpm (one time):
+
+```bash
+npm install -g pnpm
+```
+
+---
+
+##  Start Development
+
+From the repo root:
+
+```bash
+pnpm install
+pnpm dev
+```
+
+Apps will be available at:
+
+| App  | URL                                            |
+| ---- | ---------------------------------------------- |
+| Web  | [http://localhost:3000](http://localhost:3000) |
+| Docs | [http://localhost:3001](http://localhost:3001) |
+
+---
+
+##  Run a Single App
+
+```bash
+pnpm --filter web dev
+pnpm --filter docs dev
+```
+
+
+> Migration commands depend on the database tool (Prisma / Drizzle / etc).
+
+---
+
+##  Team Rules
+
+* Use **pnpm only** (no npm/yarn lockfiles)
+* Shared logic lives in `packages/`
+* Do not duplicate code between apps
+* Use root scripts whenever possible
+
+---
+
+##  Common Commands
+
+```bash
+pnpm dev     # Run all apps
+pnpm build   # Build all apps
+pnpm lint    # Lint everything
+```

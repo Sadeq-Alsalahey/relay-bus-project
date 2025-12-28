@@ -1,0 +1,6 @@
+{
+  "name": "@relay/hello-service",
+  "scripts": {
+    "dev": "node index.js"
+  }
+}
