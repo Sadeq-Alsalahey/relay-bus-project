@@ -93,17 +93,28 @@ pnpm turbo build
 
 ## Initialize backend project (Node.js + TypeScript + Express)
 ## 1 add nod.js
-cd RelayBus/apps
-mkdir backend
-cd backend
-pnpm init -y
+mkdir services
+cd services
+pnpm init 
 
 ## 2 add exprees
 pnpm add express dotenv
 pnpm add -D typescript ts-node nodemon @types/node @types/express
 ## 3 add tcpescript
-npx tsc --init
+npx tsc --init 
+or from root project pnpm add express --filter @relay/hello-service
+
+add to user sevice
+pnpm add express --filter @relay/users
+
+# run server  semple service backend
+
+pnpm turbo run dev --filter=@relay/hello-service
 
 
-# run server 
+Users Service running on port 3003
+hello Service running on port 3002
+
+
+# add docker 
 
