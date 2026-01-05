@@ -1,3 +1,78 @@
+
+## Requirements
+
+* Node.js **18+**
+* pnpm **8+**
+* PostgreSQL **12+**
+
+Install pnpm (one time):
+
+```bash
+npm install -g pnpm
+
+# Run a Single App or Service
+# Web frontend
+pnpm --filter web dev
+
+# Docs
+pnpm --filter docs dev
+
+# Auth Service
+pnpm --filter @relay/auth-service dev
+
+# Users Service
+pnpm --filter @relay/users dev
+
+# Hello Service
+pnpm --filter @relay/hello-service dev
+
+# Gateway
+pnpm --filter @relay/gateway dev
+
+
+
+**Initialize Backend Service (Node.js + TypeScript + Express)**
+1- Create service folder
+mkdir services
+cd services
+pnpm init
+
+2-Add Express & dependencies
+
+pnpm add express dotenv cors
+pnpm add -D typescript ts-node nodemon @types/node @types/express
+
+3-Initialize TypeScript
+npx tsc --init
+
+---Run Backend Service Example
+
+pnpm turbo run dev --filter=@relay/hello-service
+
+
+
+
+
+# Auth 
+
+## use auth.js
+1- create page 
+
+## validation 
+المكتبات 
+pnpm add react-hook-form zod @hookform/resolvers
+
+
+
+
+
+
+
+
+
+
+
+
 # Turborepo starter
 
 This Turborepo starter is maintained by the Turborepo core team.
@@ -152,3 +227,6 @@ Run only the docs app:
 - pnpm --filter docs dev
 "# Relay-Bus" 
 "# Relay-Bus" 
+
+
+"# realy-bus" 
