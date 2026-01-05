@@ -1,12 +1,11 @@
 import express from "express";
-import fetch from "node-fetch"; // إذا Node 24+، fetch موجود أصلاً
+import fetch from "node-fetch"; 
 import cors from "cors";
 
 const app = express();
 app.use(express.json());
-app.use(cors()); // مهم للسماح للواجهة بالاتصال
+app.use(cors());
 
-// Health check
 app.get("/health", (req, res) => {
   res.json({ service: "hello-service", status: "running" });
 });
