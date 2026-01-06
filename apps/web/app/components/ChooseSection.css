@@ -1,0 +1,152 @@
+/* ========== RESET & BASE ========== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+}
+
+/* ========== LAYOUT ========== */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+/* ========== WHY CHOOSE SECTION ========== */
+.why-choose-section {
+  padding: 4rem 0;
+  background-color: #f8fffc;
+}
+
+.section-title {
+  text-align: center;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  margin-bottom: 3rem;
+  color: #0f172a;
+}
+
+/* Cards Grid */
+.cards-wrapper {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Card */
+.card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.8rem;
+  border: 1px solid #e5e7eb;
+  text-align: left;
+
+  cursor: pointer;
+  outline: none;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.card:hover,
+.card:focus-visible {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+  border-color: #10b981;
+}
+
+.card.active {
+  transform: scale(0.98);
+}
+
+/* Icon */
+.icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+/* Text */
+.card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.6rem;
+  color: #0f172a;
+}
+
+.card p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #4b5563;
+}
+
+/* ========== CTA SECTION ========== */
+.cta-section {
+  background: linear-gradient(135deg, #064e3b, #10b981);
+  color: white;
+  text-align: center;
+  padding: 4rem 1.5rem;
+}
+
+.cta-section h2 {
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  margin-bottom: 1rem;
+}
+
+.cta-section p {
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  color: #d1fae5;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* CTA Button */
+.cta-button {
+  display: inline-block;
+  padding: 0.9rem 2.2rem;
+  background: #ffffff;
+  color: #064e3b;
+  border-radius: 999px;
+  font-weight: 600;
+  text-decoration: none;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.cta-button:hover,
+.cta-button:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+/* ========== RESPONSIVE TWEAKS ========== */
+@media (max-width: 768px) {
+  .why-choose-section {
+    padding: 3rem 0;
+  }
+
+  .cta-section {
+    padding: 3rem 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 1.4rem;
+  }
+
+  .cta-button {
+    width: 100%;
+    text-align: center;
+  }
+}

@@ -3,8 +3,11 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import styles from "./register.module.css";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
+  const router = useRouter();
+
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -13,21 +16,55 @@ export default function RegisterPage() {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-  const submitHandler = (e: React.FormEvent) => {
+  const submitHandler = async (e: React.FormEvent) => {
     e.preventDefault();
+    setServerError(null);
 
     if (form.password !== form.confirmPassword) {
-      alert("Passwords do not match");
+      setServerError("Passwords do not match");
       return;
     }
 
-    console.log("REGISTER DATA 👉", form);
+    setLoading(true);
+
+    try {
+      const res = await fetch("/v1/auth/register", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setServerError(data.message || "Registration failed");
+        return;
+      }
+
+      setSuccess(true);
+
+      // Redirect بعد نجاح التسجيل
+      setTimeout(() => {
+        router.push("/login");
+      }, 1500);
+    } catch {
+      setServerError("Server unreachable, please try again later");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className={styles.registerWrapper}>
-      {/* Logo */}
       <div className={styles.registerCard}>
         <div className={styles.logo}>
           <Image
@@ -106,8 +143,22 @@ export default function RegisterPage() {
             }
           />
 
-          <button className={styles.registerBtn}>
-            🧾 Create Account
+          {/* Errors */}
+          {serverError && (
+            <p className={styles.error}>{serverError}</p>
+          )}
+
+          {success && (
+            <p className={styles.success}>
+              Account created successfully ✅ Redirecting...
+            </p>
+          )}
+
+          <button
+            className={styles.registerBtn}
+            disabled={loading}
+          >
+            {loading ? "Creating..." : "🧾 Create Account"}
           </button>
         </form>
 

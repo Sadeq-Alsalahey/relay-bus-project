@@ -28,7 +28,7 @@ jobs:
         run_install: false
         
     - name: Install dependencies
-      run: pnpm install --frozen-lockfile  # استخدام هذا بدلاً من pnpm ci
+      run: pnpm install --frozen-lockfile  
       
     - name: Build project
       run: pnpm turbo build

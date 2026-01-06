@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import React from "react";
 import { useState, useEffect } from "react";
 
 export default function Header() {

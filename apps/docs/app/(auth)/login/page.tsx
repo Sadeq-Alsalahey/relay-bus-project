@@ -1,13 +1,13 @@
 "use client";
-import React,{ useState } from "react";
+
+import React, { useState } from "react";
 import Image from "next/image";
 import styles from "./login.module.css";
 import { loginSchema, LoginFormData } from "../../../Validation/loginSchema";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-
+import { useRouter } from "next/navigation";
 
 const FEATURES = [
   { icon: "🔐", title: "SECURE", subtitle: "LOGIN" },
@@ -17,23 +17,50 @@ const FEATURES = [
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
 
-const {
-  register,
-  handleSubmit,
-  formState: { errors, isSubmitting },
-} = useForm<LoginFormData>({
-  resolver: zodResolver(loginSchema),
-});
- const onSubmit = async (data: LoginFormData) => {
-  console.log("Login Data:", data);
+  const router = useRouter();
 
-  // هنا تربط API أو NextAuth لاحقًا
-};
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
 
+  const onSubmit = async (data: LoginFormData) => {
+    setServerError(null);
+
+    try {
+      const res = await fetch("/v1/auth/login", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(result.message || "Login failed");
+      }
+
+      // 🔐 حفظ التوكن
+      localStorage.setItem("accessToken", result.accessToken);
+
+      // ✅ التحويل بعد النجاح
+      router.push("/dashboard");
+    } catch (err: any) {
+      setServerError(err.message);
+    }
+  };
 
   return (
-   
     <div className={styles.loginWrapper}>
       {/* Language Switch */}
       <div className={styles.langSwitch}>
@@ -47,7 +74,7 @@ const {
 
       {/* Login Card */}
       <div className={styles.loginCard}>
-        {/* Logo (IMAGE ONLY) */}
+        {/* Logo */}
         <div className={styles.logo}>
           <Image
             src="/svg/RELAY BUS-09.svg"
@@ -69,48 +96,58 @@ const {
             📧 Email Address
           </label>
           <input
-  type="email"
-  className={styles.input}
-  placeholder="name@company.com"
-  {...register("email")}
-/>
-
-{errors.email && (
-  <p className={styles.error}>{errors.email.message}</p>
-)}
+            type="email"
+            className={styles.input}
+            placeholder="name@company.com"
+            {...register("email")}
+          />
+          {errors.email && (
+            <p className={styles.error}>{errors.email.message}</p>
+          )}
 
           {/* Password */}
           <label htmlFor="password" className={styles.label}>
-           🔐 Password
+            🔐 Password
           </label>
           <div className={styles.passwordBox}>
-           <input
-  type={showPassword ? "text" : "password"}
-  className={styles.input}
-  placeholder="••••••••"
-  {...register("password")}
-/>
+            <input
+              type={showPassword ? "text" : "password"}
+              className={styles.input}
+              placeholder="••••••••"
+              {...register("password")}
+            />
 
-{errors.password && (
-  <p className={styles.error}>{errors.password.message}</p>
-)}
-
-<button
-  type="submit"
-  className={styles.loginBtn}
-  disabled={isSubmitting}
->
-  {isSubmitting ? "Logging in..." : "🚀 Access Fleet Management"}
-</button>
-
+            <button
+              type="button"
+              className={styles.eye}
+              onClick={() => setShowPassword((v) => !v)}
+            >
+              {showPassword ? "🙈" : "👁️"}
+            </button>
           </div>
+
+          {errors.password && (
+            <p className={styles.error}>{errors.password.message}</p>
+          )}
+
+          {/* Server Error */}
+          {serverError && (
+            <p className={styles.error}>{serverError}</p>
+          )}
+
+          <button
+            type="submit"
+            className={styles.loginBtn}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Logging in..." : "🚀 Access Fleet Management"}
+          </button>
 
           {/* Remember */}
           <div className={styles.remember}>
             <input id="remember" type="checkbox" />
             <label htmlFor="remember">Keep me signed in</label>
           </div>
-
         </form>
 
         {/* Links */}
@@ -119,13 +156,11 @@ const {
           <span>|</span>
           <a href="#">Contact Support</a>
         </div>
-        {/* Links */}
-<div className={styles.links}>
-  
-  <span>|</span>
-  <a href="/register">Create Account</a>
-</div>
 
+        <div className={styles.links}>
+          <span>|</span>
+          <a href="/register">Create Account</a>
+        </div>
 
         <footer className={styles.footer}>
           © 2026 RelayBus Fleet Management. All rights reserved.

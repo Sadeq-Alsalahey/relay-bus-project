@@ -118,3 +118,29 @@ hello Service running on port 3002
 
 # add docker 
 
+
+
+
+# database
+## Authentication Flow
+''' User Login
+   ↓
+NextAuth
+   ↓
+Credentials Provider
+   ↓
+Prisma ORM
+   ↓
+Database
+'''
+
+[ apps/web ]
+      |
+      v
+[ API Gateway ]
+      |
+ -------------------------
+ | users | booking | bus |
+ -------------------------
+      |
+   PostgreSQL
