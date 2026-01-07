@@ -17,6 +17,10 @@ export function requireGatewayContext(
     });
   }
 
-  (req as any).user = { id: userId, role };
+  req.user = {
+    id: Number(userId),
+    role: role as 'ADMIN' | 'USER',
+  };
+
   next();
 }

@@ -1,21 +1,35 @@
-version: "3.9"
 services:
-  hello-service:
-    build: ./services/hello-service
+  db:
+    image: postgres:15
+    container_name: relaybus-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "3002:3002"
-    depends_on:
-      - users-service
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   users-service:
-    build: ./services/users
+    build: ./services/users-service
+    container_name: users-service
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
     ports:
-      - "3003:3003"
+      - "4001:4001"
 
-  # لاحقاً يمكن إضافة auth-service
-  # auth-service:
-  #   build: ./services/auth-service
-  #   ports:
-  #     - "3003:3003"
-  #   depends_on:
-  #     - users-service
+  gateway:
+    build: .              # ✅ build من root
+    container_name: api-gateway
+    depends_on:
+      - users-service
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - "4000:4000"
+
+volumes:
+  postgres_data:

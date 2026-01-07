@@ -1,233 +1,267 @@
+# 🚍 Relay‑Bus Platform
 
-## Requirements
+A **production‑grade microservices platform** for smart transportation, built with **API Gateway architecture**, **JWT authentication**, **RBAC**, **TypeScript**, **Prisma**, and **Docker Compose**.
 
-* Node.js **18+**
-* pnpm **8+**
-* PostgreSQL **12+**
+This README is designed so **any developer can understand, run, and extend the project just by reading this file**.
 
-Install pnpm (one time):
+---
+
+##  High‑Level Architecture
+
+```
+Browser (Web / Admin UI)
+        │
+        │ HTTP / HTTPS
+        ▼
+Frontend (Next.js) – Port 3001
+        │
+        │ /v1/*  (rewrites)
+        ▼
+API Gateway (Fastify) – Port 4000
+        │
+        │ Internal HTTP
+        ▼
+Microservices Layer
+   ├─ users-service  (4001)
+   ├─ trips-service  (future)
+   └─ fleet-service  (future)
+        │
+        │ Prisma ORM
+        ▼
+PostgreSQL Database – Port 5432
+```
+
+### Why this architecture?
+
+* ✅ Single secure entry point (Gateway)
+* ✅ No duplicated auth logic
+* ✅ Clear separation of concerns
+* ✅ Easy scaling & onboarding
+
+---
+
+##  Tech Stack
+
+### Backend
+
+* **Node.js + TypeScript**
+* **Fastify** (API Gateway)
+* **Express** (microservices)
+* **JWT** authentication
+* **RBAC** (ADMIN / USER)
+* **Prisma ORM**
+* **PostgreSQL**
+
+### Frontend
+
+* **Next.js (App Router)**
+* Secure cookie‑based auth
+
+### DevOps
+
+* **Docker & Docker Compose**
+* Environment‑based configuration
+
+---
+
+##  Project Structure
+
+```
+Relay‑Bus/
+│
+├─ apps/
+│  ├─ gateway/            # API Gateway (Fastify)
+│  └─ docs/               # Frontend (Next.js)
+│
+├─ services/
+│  └─ users-service/      # Users microservice
+│
+├─ docker-compose.yml
+├─ .env                   # Docker environment variables
+└─ README.md
+```
+
+---
+
+##  Authentication & Authorization
+
+### Authentication
+
+* JWT is **issued and verified only by the API Gateway**
+* Access token → `Authorization: Bearer <token>`
+* Refresh token → HttpOnly cookie
+
+### Authorization (RBAC)
+
+Roles:
+
+* `ADMIN`
+* `USER`
+
+RBAC is enforced **in the Gateway before requests reach services**.
+
+Example:
+
+```
+/v1/users/*  → ADMIN only
+```
+
+---
+
+##  API Routing (Gateway)
+
+| Route         | Target Service | Description        |
+| ------------- | -------------- | ------------------ |
+| `/v1/auth/*`  | users-service  | Login / Logout     |
+| `/v1/users/*` | users-service  | Users CRUD (ADMIN) |
+
+The gateway:
+
+* Verifies JWT
+* Checks role permissions
+* Forwards requests internally
+
+---
+
+## 👤 users-service
+
+Responsible for:
+
+* User persistence
+* Business logic
+* Database access (Prisma)
+
+### User Model (Prisma)
+
+```prisma
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String?
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+```
+
+### Endpoints
+
+| Method | Endpoint     | Access        |
+| ------ | ------------ | ------------- |
+| GET    | `/users`     | ADMIN         |
+| GET    | `/users/me`  | Authenticated |
+| GET    | `/users/:id` | ADMIN         |
+| PATCH  | `/users/:id` | ADMIN         |
+
+All requests **must come from the Gateway**.
+
+---
+
+## 🧠 Gateway Context Propagation
+
+The gateway injects trusted headers:
+
+```
+x-user-id
+x-user-role
+```
+
+`users-service` validates these using `requireGatewayContext` middleware.
+
+---
+
+##  Running with Docker (Recommended)
+
+### 1 Requirements
+
+* Docker Desktop
+* WSL2 (Windows)
+
+### 2 Environment File
+
+ `.env` (root)
+
+```env
+POSTGRES_DB=relaybus
+POSTGRES_USER=relay_user
+POSTGRES_PASSWORD=Realy123
+
+DATABASE_URL=postgresql://relay_user:Realy123@db:5432/relaybus
+JWT_SECRET=relaybus_super_secret_key_123
+```
+
+### 3 Start the System
 
 ```bash
-npm install -g pnpm
-
-# Run a Single App or Service
-# Web frontend
-pnpm --filter web dev
-
-# Docs
-pnpm --filter docs dev
-
-# Auth Service
-pnpm --filter @relay/auth-service dev
-
-# Users Service
-pnpm --filter @relay/users dev
-
-# Hello Service
-pnpm --filter @relay/hello-service dev
-
-# Gateway
-pnpm --filter @relay/gateway dev
-
-
-
-**Initialize Backend Service (Node.js + TypeScript + Express)**
-1- Create service folder
-mkdir services
-cd services
-pnpm init
-
-2-Add Express & dependencies
-
-pnpm add express dotenv cors
-pnpm add -D typescript ts-node nodemon @types/node @types/express
-
-3-Initialize TypeScript
-npx tsc --init
-
----Run Backend Service Example
-
-pnpm turbo run dev --filter=@relay/hello-service
-
-
-
-
-
-# Auth 
-
-## use auth.js
-1- create page 
-
-## validation 
-المكتبات 
-pnpm add react-hook-form zod @hookform/resolvers
-
-
-
-
-
-
-
-
-
-
-
-
-# Turborepo starter
-
-This Turborepo starter is maintained by the Turborepo core team.
-
-## Using this example
-
-Run the following command:
-
-```sh
-npx create-turbo@latest
+docker compose up --build
 ```
 
-## What's inside?
+Services:
 
-This Turborepo includes the following packages/apps:
+* Gateway → [http://localhost:4000](http://localhost:4000)
+* Database → localhost:5432
 
-### Apps and Packages
+---
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+## 🧪 Test Login
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+```bash
+POST http://localhost:4000/v1/auth/login
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+Success response:
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+```json
+{
+  "accessToken": "..."
+}
 ```
 
-### Develop
+---
 
-To develop all apps and packages, run the following command:
+##  How to Add a New Microservice
 
-```
-cd my-turborepo
+1. Create service folder under `services/`
+2. Add Dockerfile
+3. Implement business logic
+4. Register route in Gateway proxy
+5. Apply RBAC if needed
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
+No auth duplication required ✅
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
+---
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+## 🛡 Security Principles
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
+* Auth centralized in Gateway
+* Services are never exposed directly
+* Role checks before routing
+* Type‑safe context propagation
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+---
 
-### Remote Caching
+## 🛣 Roadmap
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+* [ ] trips-service
+* [ ] fleet-service
+* [ ] Swagger / OpenAPI
+* [ ] Redis rate limiting
+* [ ] CI/CD (GitHub Actions)
+* [ ] Kubernetes deployment
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+---
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+## ⭐ Final Notes
 
-```
-cd my-turborepo
+This project demonstrates:
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
+* Clean microservices architecture
+* Real‑world API Gateway pattern
+* Production‑ready security design
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
+If you understand this README — you can **maintain and extend the system confidently**.
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+---
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
-
-
-///////////////////Relay Bus////////////////
-
-Monorepo powered by Turborepo with pnpm. This repository contains multiple apps and shared packages managed from a single workspace.
--[Prerequisites]
-Install pnpm globally if not installed:
-- npm install -g pnpm
-Start all dev servers
-- pnpm dev 
-
-Running a Single App
-
-Run only the web app:
-- pnpm --filter web dev
-Run only the docs app:
-- pnpm --filter docs dev
-"# Relay-Bus" 
-"# Relay-Bus" 
-
-
-"# realy-bus" 
-"# relay-bus-project" 
+**By:** Eng. Sadeq Al‑Salahey
